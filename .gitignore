@@ -1,0 +1,38 @@
+# Node.js
+node_modules/
+npm-debug.log
+
+# React build files
+client/build/
+
+# Environment variables
+.env
+
+# OS files
+.DS_Store
+
+# Log files
+logs/
+*.log
+
+
+# dependencies
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
