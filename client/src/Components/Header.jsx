@@ -148,7 +148,7 @@ function Header() {
               href="http://localhost:3000/settings"
               className="nav-link px-2 text-dark"
             >
-              <SettingsIcon />
+              {isAuthenticated && <SettingsIcon />}
             </a>
           </li>
         </ul>
