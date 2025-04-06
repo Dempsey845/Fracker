@@ -1,28 +1,29 @@
 import "./App.css";
 import Header from "./Components/Header";
-import FloatImage from "./Components/FloatImage";
+import Footer from "./Components/Footer";
+import SignUpForm from "./pages/SignUpForm";
+import SignInForm from "./pages/SignInForm";
 
-const imageStyle = {
-  marginRight: "10%",
-  marginLeft: "10%",
-};
-
-const floatStyle = {
-  float: "left",
-  marginRight: "15px",
-  width: "200px",
-  height: "auto",
-};
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import AboutPage from "./pages/AboutPage";
+import DashboardPage from "./Components/Dashboard";
 
 function App() {
   return (
-    <div className="App">
-      <Header />
-      <FloatImage
-        imgSrc="/landingpage.jpeg"
-        content="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-      />
-    </div>
+    <Router>
+      <div className="App">
+        <Header />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/signup" element={<SignUpForm />} />
+          <Route path="/login" element={<SignInForm />} />
+        </Routes>
+        <Footer />
+      </div>
+    </Router>
   );
 }
 
