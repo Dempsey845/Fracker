@@ -8,6 +8,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
 import DashboardPage from "./Components/Dashboard";
+import SettingsPage from "./pages/SettingsPage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/signup" element={<SignUpForm />} />
           <Route path="/login" element={<SignInForm />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Routes>
         <Footer />
       </div>

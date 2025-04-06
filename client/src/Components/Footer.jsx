@@ -2,8 +2,8 @@ import React from "react";
 
 function Footer() {
   return (
-    <footer class="container">
-      <p class="float-end">
+    <footer className="footer container">
+      <p className="float-end">
         <a href="#">Back to top</a>
       </p>
       <p>

@@ -9,9 +9,11 @@ import { Strategy } from "passport-local";
 import GoogleStrategy from "passport-google-oauth2";
 import session from "express-session";
 import cors from "cors";
+import pgSession from "connect-pg-simple";
 
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import { promisify } from "util";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -22,6 +24,8 @@ env.config();
 
 const saltRounds = parseInt(process.env.SALT_ROUNDS || "10", 10);
 
+const PgSession = pgSession(session);
+
 // Allow requests from the frontend (React app running on port 3000)
 app.use(
   cors({
@@ -30,11 +34,28 @@ app.use(
   })
 );
 
+// Database (PG)
+const db = new pg.Client({
+  user: process.env.PG_USER,
+  host: process.env.PG_HOST,
+  database: process.env.PG_DATABASE,
+  password: process.env.PG_PASSWORD,
+  port: process.env.PG_PORT,
+});
+db.connect();
+
 app.use(
   session({
+    store: new PgSession({
+      pool: db,
+      tableName: "session",
+    }),
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    },
   })
 );
 
@@ -49,16 +70,6 @@ app.use(passport.initialize());
 // Middleware that will restore login state from a session.
 app.use(passport.session());
 
-// Database (PG)
-const db = new pg.Client({
-  user: process.env.PG_USER,
-  host: process.env.PG_HOST,
-  database: process.env.PG_DATABASE,
-  password: process.env.PG_PASSWORD,
-  port: process.env.PG_PORT,
-});
-db.connect();
-
 // API Routes
 app.post("/register", async (req, res) => {
   const email = req.body.email;
@@ -71,28 +82,22 @@ app.post("/register", async (req, res) => {
 
     if (checkResult.rows.length > 0) {
       return res.status(400).json({ message: "User already exists" });
-    } else {
-      bcrypt.hash(password, saltRounds, async (err, hash) => {
-        if (err) {
-          console.log("Error hashing password: ", err);
-          return res.status(500).json({ message: "Server error" });
-        } else {
-          const result = await db.query(
-            "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *",
-            [email, hash]
-          );
-          const user = result.rows[0];
-          req.login(user, (err) => {
-            console.log("success");
-            res.redirect("/dashboard");
-          });
-          res.status(201).json({ message: "User registered successfully" });
-        }
-      });
     }
+
+    const hash = await bcrypt.hash(password, saltRounds);
+    const result = await db.query(
+      "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *",
+      [email, hash]
+    );
+    const user = result.rows[0];
+
+    const login = promisify(req.login.bind(req));
+    await login(user);
+
+    return res.redirect("/dashboard");
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Server error" });
+    console.error("Register error:", err);
+    return res.status(500).json({ message: "Server error" });
   }
 });
 
@@ -123,17 +128,86 @@ app.get("/api/dashboard", (req, res) => {
   }
 });
 
+app.get("/api/check-auth", (req, res) => {
+  if (req.isAuthenticated()) {
+    return res.json({ isAuthenticated: true });
+  } else {
+    return res.json({ isAuthenticated: false });
+  }
+});
+
+app.post("/api/updatepreferences", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const userId = req.user.id; // Get the authenticated user's ID
+    const { currency, darkMode } = req.body;
+
+    try {
+      const result = await db.query(
+        "SELECT * FROM user_preferences WHERE user_id = $1",
+        [userId]
+      );
+
+      if (result.rows.length > 0) {
+        // If preferences exist, update them
+        const updateQuery = `
+          UPDATE user_preferences
+          SET currency = $1, dark_mode = $2
+          WHERE user_id = $3
+          RETURNING *`;
+        const updateResult = await db.query(updateQuery, [
+          currency,
+          darkMode,
+          userId,
+        ]);
+        console.log("Preferences updated");
+        return res.status(200).json({
+          message: "Preferences updated",
+          preferences: updateResult.rows[0],
+        });
+      } else {
+        // If no preferences exist, insert new
+        const insertQuery = `
+          INSERT INTO user_preferences (user_id, currency, dark_mode)
+          VALUES ($1, $2, $3)
+          RETURNING *`;
+        const insertResult = await db.query(insertQuery, [
+          userId,
+          currency,
+          darkMode,
+        ]);
+        console.log("Preferences saved");
+        return res.status(200).json({
+          message: "Preferences saved",
+          preferences: insertResult.rows[0],
+        });
+      }
+    } catch (err) {
+      console.error("Error updating preferences:", err);
+      return res.status(500).json({ message: "Server error" });
+    }
+  } else {
+    return res.status(401).json({ message: "User not authenticated" });
+  }
+});
+
 app.get("/logout", (req, res, next) => {
   if (req.isAuthenticated()) {
     req.logout((err) => {
       if (err) return next(err);
-      res.redirect("/");
+
+      // Clear session and cookies
+      res.clearCookie("connect.sid"); // Clear session cookie
+      req.session.destroy((err) => {
+        if (err) return next(err);
+
+        // Optionally send a response to frontend or redirect to login page
+        res.status(200).json({ message: "Logout successful" });
+      });
     });
   } else {
-    res.redirect("/");
+    res.status(400).json({ message: "User is not authenticated" }); // Handle case where user is not authenticated
   }
 });
-
 // Applies the google strategy to the incoming request, in order to authenticate the request.
 app.get(
   "/auth/google",
@@ -164,33 +238,36 @@ app.post("/login", (req, res, next) => {
 
 passport.use(
   "local",
-  new Strategy(async function verify(username, password, cb) {
-    try {
-      const result = await db.query("SELECT * FROM users WHERE email = $1", [
-        username,
-      ]);
-      if (result.rows.length > 0) {
-        const user = result.rows[0];
-        const storedHashedPassword = user.password;
-        bcrypt.compare(password, storedHashedPassword, (err, valid) => {
-          if (err) {
-            console.error("Error comapring passwords: ", err);
-            return cb(err);
-          } else {
-            if (valid) {
-              return cb(null, user);
+  new Strategy(
+    { usernameField: "email", passwordField: "password" },
+    async function verify(username, password, cb) {
+      try {
+        const result = await db.query("SELECT * FROM users WHERE email = $1 ", [
+          username,
+        ]);
+        if (result.rows.length > 0) {
+          const user = result.rows[0];
+          const storedHashedPassword = user.password;
+          bcrypt.compare(password, storedHashedPassword, (err, valid) => {
+            if (err) {
+              console.error("Error comparing passwords:", err);
+              return cb(err);
             } else {
-              return cb(null, false);
+              if (valid) {
+                return cb(null, user);
+              } else {
+                return cb(null, false);
+              }
             }
-          }
-        });
-      } else {
-        return cb("User not found");
+          });
+        } else {
+          return cb(null, false, { message: "User not found" });
+        }
+      } catch (err) {
+        console.log(err);
       }
-    } catch (err) {
-      console.log(err);
     }
-  })
+  )
 );
 
 passport.use(
@@ -226,11 +303,20 @@ passport.use(
 
 // Registers a function used to serialize user objects into the session.
 passport.serializeUser((user, cb) => {
-  cb(null, user);
+  cb(null, user.id);
 });
 
-passport.deserializeUser((user, cb) => {
-  cb(null, user);
+passport.deserializeUser(async (id, cb) => {
+  try {
+    const result = await db.query("SELECT * FROM users WHERE id = $1", [id]);
+    if (result.rows.length > 0) {
+      cb(null, result.rows[0]);
+    } else {
+      cb(null, false);
+    }
+  } catch (err) {
+    cb(err);
+  }
 });
 
 // Serve React's build folder after running 'npm run build' in the React client

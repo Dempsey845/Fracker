@@ -5,6 +5,7 @@ function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevent default form submission
@@ -24,7 +25,7 @@ function SignInForm() {
       console.log("Login successful", data);
       navigate("/dashboard"); // Navigate to the dashboard after successful login
     } else {
-      alert(data.message || "Login failed");
+      setError(data.message || "Login failed");
     }
   };
 
@@ -35,6 +36,7 @@ function SignInForm() {
         <div className="col-sm-8">
           <div className="card">
             <div className="card-body">
+              {error && <div className="alert alert-danger">{error}</div>}
               <form onSubmit={handleLogin}>
                 <div className="form-group">
                   <label htmlFor="email">Email</label>
