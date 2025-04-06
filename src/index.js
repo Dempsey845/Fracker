@@ -136,10 +136,31 @@ app.get("/api/check-auth", (req, res) => {
   }
 });
 
-app.post("/api/setdefaultcategories", async (req, res) => {
+// Backend Route to Get User Preferences
+app.get("/api/user/preferences", async (req, res) => {
   if (req.isAuthenticated()) {
-    // Were going to call this when a new user signs up, it will update the categories table
-    // It will give it multiple categories for defaults
+    const userId = req.user.id; // Assuming the user is authenticated
+
+    try {
+      const query = "SELECT currency FROM user_preferences WHERE user_id = $1";
+      const result = await db.query(query, [userId]);
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: "User preferences not found." });
+      }
+
+      return res.status(200).json({ currency: result.rows[0].currency });
+    } catch (err) {
+      console.error("Error fetching user preferences:", err);
+      return res.status(500).json({
+        message: "An error occurred while fetching user preferences.",
+        error: err.message,
+      });
+    }
+  } else {
+    return res.status(401).json({
+      message: "User not authenticated",
+    });
   }
 });
 
