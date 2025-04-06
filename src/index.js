@@ -136,6 +136,152 @@ app.get("/api/check-auth", (req, res) => {
   }
 });
 
+app.post("/api/setdefaultcategories", async (req, res) => {
+  if (req.isAuthenticated()) {
+    // Were going to call this when a new user signs up, it will update the categories table
+    // It will give it multiple categories for defaults
+  }
+});
+
+app.get("/api/incomes/:id", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const userId = req.params.id; // Get the userId from the URL params
+
+    try {
+      const query = "SELECT * FROM incomes WHERE user_id = $1"; // Get all incomes for the user
+      const result = await db.query(query, [userId]);
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          message: "No incomes found for this user",
+        });
+      }
+
+      return res.status(200).json({
+        message: "Incomes fetched successfully",
+        incomes: result.rows,
+      });
+    } catch (err) {
+      console.error("Error fetching incomes:", err);
+      return res.status(500).json({
+        message: "An error occurred while fetching incomes.",
+        error: err.message,
+      });
+    }
+  } else {
+    return res.status(401).json({
+      message: "User not authenticated",
+    });
+  }
+});
+
+app.get("/api/expenses/:id", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const userId = req.params.id; // Get the userId from the URL params
+
+    try {
+      const query = "SELECT * FROM expenses WHERE user_id = $1"; // Get all expenses for the user
+      const result = await db.query(query, [userId]);
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          message: "No expenses found for this user",
+        });
+      }
+
+      return res.status(200).json({
+        message: "Expenses fetched successfully",
+        expenses: result.rows,
+      });
+    } catch (err) {
+      console.error("Error fetching expenses:", err);
+      return res.status(500).json({
+        message: "An error occurred while fetching expenses.",
+        error: err.message,
+      });
+    }
+  } else {
+    return res.status(401).json({
+      message: "User not authenticated",
+    });
+  }
+});
+
+app.post("/api/addincome", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const userId = req.user.id;
+    const { amount, note, date, category } = req.body;
+
+    try {
+      // Insert the new income into the database
+      const insertQuery = `
+        INSERT INTO incomes (user_id, amount, note, date, category)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING *`;
+
+      const insertResult = await db.query(insertQuery, [
+        userId,
+        amount,
+        note,
+        date,
+        category,
+      ]);
+
+      return res.status(201).json({
+        message: "Income added successfully",
+        income: insertResult.rows[0],
+      });
+    } catch (err) {
+      console.error("Error adding income:", err);
+      return res.status(500).json({
+        message: "An error occurred while adding income.",
+        error: err.message,
+      });
+    }
+  } else {
+    return res.status(401).json({
+      message: "User not authenticated",
+    });
+  }
+});
+
+app.post("/api/addexpense", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const userId = req.user.id;
+    const { amount, note, date, category } = req.body;
+
+    try {
+      const insertQuery = `
+        INSERT INTO expenses (user_id, amount, note, date, category)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING *`;
+
+      const insertResult = await db.query(insertQuery, [
+        userId,
+        amount,
+        note,
+        date,
+        category,
+      ]);
+
+      return res.status(201).json({
+        message: "Expense added successfully",
+        expense: insertResult.rows[0],
+      });
+    } catch (err) {
+      console.error("Error adding expense:", err);
+      return res.status(500).json({
+        message: "An error occurred while adding Expense.",
+        error: err.message,
+      });
+    }
+  } else {
+    return res.status(401).json({
+      message: "User not authenticated",
+    });
+  }
+});
+
 app.post("/api/updatepreferences", async (req, res) => {
   if (req.isAuthenticated()) {
     const userId = req.user.id; // Get the authenticated user's ID
@@ -187,6 +333,180 @@ app.post("/api/updatepreferences", async (req, res) => {
     }
   } else {
     return res.status(401).json({ message: "User not authenticated" });
+  }
+});
+
+// Route to update income
+app.put("/api/updateincome/:id", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const userId = req.user.id;
+    const incomeId = req.params.id;
+    const { amount, note, date, category } = req.body;
+
+    try {
+      const updateQuery = `
+        UPDATE incomes
+        SET amount = $1, note = $2, date = $3, category = $4
+        WHERE id = $5 AND user_id = $6
+        RETURNING *`;
+
+      const updateResult = await db.query(updateQuery, [
+        amount,
+        note,
+        date,
+        category,
+        incomeId,
+        userId,
+      ]);
+
+      if (updateResult.rows.length === 0) {
+        return res.status(404).json({
+          message:
+            "Income not found or you don't have permission to edit this income",
+        });
+      }
+
+      return res.status(200).json({
+        message: "Income updated successfully",
+        income: updateResult.rows[0],
+      });
+    } catch (err) {
+      console.error("Error updating income:", err);
+      return res.status(500).json({
+        message: "An error occurred while updating income.",
+        error: err.message,
+      });
+    }
+  } else {
+    return res.status(401).json({
+      message: "User not authenticated",
+    });
+  }
+});
+
+// Route to update expense
+app.put("/api/updateexpense/:id", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const userId = req.user.id;
+    const expenseId = req.params.id;
+    const { amount, note, date, category } = req.body;
+
+    try {
+      const updateQuery = `
+        UPDATE expenses
+        SET amount = $1, note = $2, date = $3, category = $4
+        WHERE id = $5 AND user_id = $6
+        RETURNING *`;
+
+      const updateResult = await db.query(updateQuery, [
+        amount,
+        note,
+        date,
+        category,
+        expenseId,
+        userId,
+      ]);
+
+      if (updateResult.rows.length === 0) {
+        return res.status(404).json({
+          message:
+            "Expense not found or you don't have permission to edit this expense",
+        });
+      }
+
+      return res.status(200).json({
+        message: "Expense updated successfully",
+        expense: updateResult.rows[0],
+      });
+    } catch (err) {
+      console.error("Error updating expense:", err);
+      return res.status(500).json({
+        message: "An error occurred while updating expense.",
+        error: err.message,
+      });
+    }
+  } else {
+    return res.status(401).json({
+      message: "User not authenticated",
+    });
+  }
+});
+
+// Route to delete income
+app.delete("/api/deleteincome/:id", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const userId = req.user.id;
+    const incomeId = req.params.id;
+
+    try {
+      const deleteQuery = `
+        DELETE FROM incomes
+        WHERE id = $1 AND user_id = $2
+        RETURNING *`;
+
+      const deleteResult = await db.query(deleteQuery, [incomeId, userId]);
+
+      if (deleteResult.rows.length === 0) {
+        return res.status(404).json({
+          message:
+            "Income not found or you don't have permission to delete this income",
+        });
+      }
+
+      return res.status(200).json({
+        message: "Income deleted successfully",
+        income: deleteResult.rows[0],
+      });
+    } catch (err) {
+      console.error("Error deleting income:", err);
+      return res.status(500).json({
+        message: "An error occurred while deleting income.",
+        error: err.message,
+      });
+    }
+  } else {
+    return res.status(401).json({
+      message: "User not authenticated",
+    });
+  }
+});
+
+// Route to delete expense
+app.delete("/api/deleteexpense/:id", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const userId = req.user.id;
+    const expenseId = req.params.id;
+
+    try {
+      const deleteQuery = `
+        DELETE FROM expenses
+        WHERE id = $1 AND user_id = $2
+        RETURNING *`;
+
+      const deleteResult = await db.query(deleteQuery, [expenseId, userId]);
+
+      if (deleteResult.rows.length === 0) {
+        return res.status(404).json({
+          message:
+            "Expense not found or you don't have permission to delete this expense",
+        });
+      }
+
+      return res.status(200).json({
+        message: "Expense deleted successfully",
+        expense: deleteResult.rows[0],
+      });
+    } catch (err) {
+      console.error("Error deleting expense:", err);
+      return res.status(500).json({
+        message: "An error occurred while deleting expense.",
+        error: err.message,
+      });
+    }
+  } else {
+    return res.status(401).json({
+      message: "User not authenticated",
+    });
   }
 });
 

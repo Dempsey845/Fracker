@@ -1,0 +1,26 @@
+{
+  "income": [
+    "Salary/Wages",
+    "Freelancing/Contracting",
+    "Business Income",
+    "Investment Income",
+    "Rental Income",
+    "Dividends",
+    "Gifts/Donations",
+    "Savings Interest",
+    "Other Income"
+  ],
+  "expense": [
+    "Housing",
+    "Transportation",
+    "Food",
+    "Health & Medical",
+    "Entertainment",
+    "Education",
+    "Personal Care",
+    "Debt Payments",
+    "Insurance",
+    "Savings",
+    "Miscellaneous"
+  ]
+}
