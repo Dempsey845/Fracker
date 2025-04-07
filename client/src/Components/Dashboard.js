@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import BarChart from "./BarChart";
 import PopupForm from "./PopupForm";
+import { FilterDataByYear } from "../Handlers/ParseData";
 
 function DashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -12,8 +13,16 @@ function DashboardPage() {
   });
   const [incomes, setIncomes] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [filteredIncomes, setFilteredIncomes] = useState([]);
+  const [year, setYear] = useState(2025);
 
-  console.log(incomes);
+  useEffect(() => {
+    setFilteredIncomes(FilterDataByYear(incomes, year));
+  }, [year]);
+
+  useEffect(() => {
+    setFilteredIncomes(FilterDataByYear(incomes, year));
+  }, [incomes]);
 
   // Fetch categories from default_categories.json
   useEffect(() => {
@@ -118,7 +127,7 @@ function DashboardPage() {
             onSubmit={handleFormSubmit}
             categories={categories}
           />
-          <BarChart />
+          <BarChart data={filteredIncomes} startMonth={0} endMonth={4} />
 
           <div>
             <h2>Incomes</h2>

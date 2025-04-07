@@ -30,9 +30,37 @@ function FilterDataByYear(data, year) {
 
 function GetMonthTotals(data) {
   console.log("Data being passed to GetMonthTotals: ", data);
-  return data.map((entry) => {
-    return parseInt(entry.amount);
+  const totals = Array(12).fill(0);
+  data.forEach((entry) => {
+    const date = new Date(entry.date);
+    const monthIndex = date.getMonth();
+    const amount = parseFloat(entry.amount);
+
+    totals[monthIndex] += amount;
+  });
+  console.log("GetMonthsTotals result: ", totals);
+  return totals;
+}
+
+function FilterDataByMonthRange(data, startMonth, endMonth) {
+  if (endMonth > startMonth) {
+    console.error("End month shouldn't be less then start month!");
+  }
+
+  return data.filter((entry) => {
+    const date = new Date(entry.date);
+    const entryMonth = date.getMonth(); // Get the month index (0 = January, 11 = December)
+    return entryMonth >= startMonth && entryMonth <= endMonth;
   });
 }
 
-export { FilterDataByYear, GetMonthTotals };
+function GetMonthRange(startMonth, endMonth) {
+  return months.slice(startMonth, endMonth + 1);
+}
+
+export {
+  FilterDataByYear,
+  GetMonthTotals,
+  FilterDataByMonthRange,
+  GetMonthRange,
+};
