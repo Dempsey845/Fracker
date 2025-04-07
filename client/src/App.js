@@ -9,6 +9,7 @@ import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
 import DashboardPage from "./Components/Dashboard";
 import SettingsPage from "./pages/SettingsPage";
+import { filterDataByYear } from "./Handlers/ParseData";
 
 function App() {
   return (

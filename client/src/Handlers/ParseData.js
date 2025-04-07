@@ -18,9 +18,9 @@ const months = [
   "December",
 ];
 
-function FilterDataByYear(data, year) {
-  console.log("Data being passed to FilterDataByYear: ", data);
-  console.log("Year being passed to FilterDataByYear: ", year, typeof year);
+function filterDataByYear(data, year) {
+  console.log("Data being passed to filterDataByYear: ", data);
+  console.log("Year being passed to filterDataByYear: ", year, typeof year);
   return data.filter((entry) => {
     const date = new Date(entry.date);
     const y = date.getFullYear();
@@ -28,8 +28,8 @@ function FilterDataByYear(data, year) {
   });
 }
 
-function GetMonthTotals(data) {
-  console.log("Data being passed to GetMonthTotals: ", data);
+function getMonthTotals(data) {
+  console.log("Data being passed to getMonthTotals: ", data);
   const totals = Array(12).fill(0);
   data.forEach((entry) => {
     const date = new Date(entry.date);
@@ -42,7 +42,7 @@ function GetMonthTotals(data) {
   return totals;
 }
 
-function FilterDataByMonthRange(data, startMonth, endMonth) {
+function filterDataByMonthRange(data, startMonth, endMonth) {
   if (endMonth > startMonth) {
     console.error("End month shouldn't be less then start month!");
   }
@@ -54,13 +54,14 @@ function FilterDataByMonthRange(data, startMonth, endMonth) {
   });
 }
 
-function GetMonthRange(startMonth, endMonth) {
+function getMonthRange(startMonth, endMonth) {
   return months.slice(startMonth, endMonth + 1);
 }
 
 export {
-  FilterDataByYear,
-  GetMonthTotals,
-  FilterDataByMonthRange,
-  GetMonthRange,
+  months,
+  filterDataByYear,
+  getMonthTotals,
+  filterDataByMonthRange,
+  getMonthRange,
 };
