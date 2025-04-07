@@ -13,6 +13,8 @@ function DashboardPage() {
   const [incomes, setIncomes] = useState([]);
   const [expenses, setExpenses] = useState([]);
 
+  console.log(incomes);
+
   // Fetch categories from default_categories.json
   useEffect(() => {
     fetch("/default_categories.json")
