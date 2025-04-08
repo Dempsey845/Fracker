@@ -116,7 +116,7 @@ function DashboardPage() {
             onSubmit={handleFormSubmit}
             categories={categories}
           />
-          <BarChart data={incomes} />
+          <BarChart incomeData={incomes} expenseData={expenses} />
 
           <div>
             <h2>Incomes</h2>

@@ -7,21 +7,26 @@ import {
   filterDataByYear,
 } from "../Handlers/ParseData";
 import ChartOptions from "./ChartOptions";
-import { use } from "react";
 
-function BarChart({ data }) {
+function BarChart({ incomeData, expenseData }) {
   const currentYear = parseInt(new Date().getFullYear());
 
   const [startMonth, setStartMonth] = useState(0);
   const [endMonth, setEndMonth] = useState(11);
   const [year, setYear] = useState(currentYear);
 
-  const [filteredData, setFilteredData] = useState(
-    filterDataByYear(data, currentYear)
+  const [filteredIncomeData, setFilteredIncomeData] = useState(
+    filterDataByYear(incomeData, currentYear)
+  );
+
+  const [filteredExpenseData, setFilteredExpenseData] = useState(
+    filterDataByYear(expenseData, currentYear)
   );
 
   const backgroundColor = "rgba(255, 99, 132, 0.2)";
+  const backgroundColor2 = "rgba(99, 255, 132, 0.2)";
   const borderColor = "rgba(255, 99, 132, 1)";
+  const borderColor2 = "rgba(99, 255, 132, 1)";
   const borderWidth = 1;
 
   const [displayData, setDisplayData] = useState({
@@ -29,7 +34,7 @@ function BarChart({ data }) {
     datasets: [
       {
         label: "Income",
-        data: getMonthTotals(filteredData),
+        data: getMonthTotals(filteredIncomeData),
         backgroundColor: backgroundColor,
         borderColor: borderColor,
         borderWidth: borderWidth,
@@ -43,18 +48,33 @@ function BarChart({ data }) {
       datasets: [
         {
           label: "Income",
-          data: getMonthTotals(filteredData),
+          data: getMonthTotals(filteredIncomeData),
           backgroundColor: backgroundColor,
           borderColor: borderColor,
           borderWidth: borderWidth,
         },
+        {
+          label: "Expenses",
+          data: getMonthTotals(filteredExpenseData),
+          backgroundColor: backgroundColor2,
+          borderColor: borderColor2,
+          borderWidth: borderWidth,
+        },
       ],
     });
-  }, [startMonth, endMonth, data, filteredData]);
+  }, [
+    startMonth,
+    endMonth,
+    incomeData,
+    filteredIncomeData,
+    expenseData,
+    filteredExpenseData,
+  ]);
 
   useEffect(() => {
-    setFilteredData(filterDataByYear(data, year));
-  }, [year, data]);
+    setFilteredIncomeData(filterDataByYear(incomeData, year));
+    setFilteredExpenseData(filterDataByYear(expenseData, year));
+  }, [year, incomeData, expenseData]);
 
   const options = {
     responsive: true,
@@ -72,7 +92,6 @@ function BarChart({ data }) {
         onChangeEndMonth={setEndMonth}
         onYearChange={setYear}
       />
-      <h2>Income for the Year</h2>
       <Bar data={displayData} options={options} />
     </div>
   );
