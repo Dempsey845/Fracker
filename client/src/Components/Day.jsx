@@ -1,6 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { getDayData } from "../Handlers/ParseData";
 
+function getDaySuffix(day) {
+  if (day >= 11 && day <= 13) {
+    return "th";
+  }
+
+  const lastDigit = day % 10;
+
+  switch (lastDigit) {
+    case 1:
+      return "st";
+    case 2:
+      return "nd";
+    case 3:
+      return "rd";
+    default:
+      return "th";
+  }
+}
+
 // Helper function to get the day of the week
 function getDayOfWeek(dayOfMonth, month) {
   const date = new Date(new Date().getFullYear(), month, dayOfMonth);
@@ -54,14 +73,16 @@ function Day({ day, incomes, expenses, currency }) {
       id={`day-${day}`}
     >
       <label className="list-group-item rounded-3 py-3">
-        {day} {getDayOfWeek(day, getMonthIndex(dayData.month))}
+        {day}
+        {getDaySuffix(day)} | {getDayOfWeek(day, getMonthIndex(dayData.month))}
         <span className="d-block small opacity-50">
           Income: {currency}
           {dayData.incomeTotal} | Expenses: {currency}
           {dayData.expenseTotal}
         </span>
         <span className="d-block small opacity-50">
-          {dayData.month} {day} {dayData.year}
+          {dayData.month} {day}
+          {getDaySuffix(day)} {dayData.year}
         </span>
       </label>
       <hr />
