@@ -11,7 +11,12 @@ function getYears() {
   return years;
 }
 
-function ChartOptions({ onChangeStartMonth, onChangeEndMonth, onYearChange }) {
+function ChartOptions({
+  onChangeStartMonth,
+  onChangeEndMonth,
+  onYearChange,
+  include = ["month", "year"],
+}) {
   const [startMonth, setStartMonth] = useState(0);
   const [endMonth, setEndMonth] = useState(11);
   const [year, setYear] = useState(2025);
@@ -69,6 +74,63 @@ function ChartOptions({ onChangeStartMonth, onChangeEndMonth, onYearChange }) {
     });
   }
 
+  function showStartMonthOption() {
+    return (
+      <div className="col-md-4">
+        <label htmlFor="startMonth" className="form-label">
+          Select Start Month
+        </label>
+        <select
+          id="startMonth"
+          name="startMonth"
+          onChange={handleMonthChange}
+          value={startMonth}
+          className="form-select"
+        >
+          {getStartMonthOptions()}
+        </select>
+      </div>
+    );
+  }
+
+  function showEndMonthOption() {
+    return (
+      <div className="col-md-4">
+        <label htmlFor="endMonth" className="form-label">
+          Select End Month
+        </label>
+        <select
+          id="endMonth"
+          name="endMonth"
+          onChange={handleMonthChange}
+          value={endMonth}
+          className="form-select"
+        >
+          {getEndMonthOptions()}
+        </select>
+      </div>
+    );
+  }
+
+  function showYearOption() {
+    return (
+      <div className="col-md-4">
+        <label htmlFor="year" className="form-label">
+          Select Year
+        </label>
+        <select
+          id="year"
+          name="year"
+          onChange={handleYearChange}
+          value={year}
+          className="form-select"
+        >
+          {getYearOptions()}
+        </select>
+      </div>
+    );
+  }
+
   return (
     <div
       id="chartOptions"
@@ -76,50 +138,11 @@ function ChartOptions({ onChangeStartMonth, onChangeEndMonth, onYearChange }) {
     >
       <h3>Select Chart Options</h3>
       <div className="row g-3">
-        <div className="col-md-4">
-          <label htmlFor="startMonth" className="form-label">
-            Select Start Month
-          </label>
-          <select
-            id="startMonth"
-            name="startMonth"
-            onChange={handleMonthChange}
-            value={startMonth}
-            className="form-select"
-          >
-            {getStartMonthOptions()}
-          </select>
-        </div>
+        {include.includes("month") && showStartMonthOption()}
 
-        <div className="col-md-4">
-          <label htmlFor="endMonth" className="form-label">
-            Select End Month
-          </label>
-          <select
-            id="endMonth"
-            name="endMonth"
-            onChange={handleMonthChange}
-            value={endMonth}
-            className="form-select"
-          >
-            {getEndMonthOptions()}
-          </select>
-        </div>
+        {include.includes("month") && showEndMonthOption()}
 
-        <div className="col-md-4">
-          <label htmlFor="year" className="form-label">
-            Select Year
-          </label>
-          <select
-            id="year"
-            name="year"
-            onChange={handleYearChange}
-            value={year}
-            className="form-select"
-          >
-            {getYearOptions()}
-          </select>
-        </div>
+        {include.includes("year") && showYearOption()}
       </div>
     </div>
   );

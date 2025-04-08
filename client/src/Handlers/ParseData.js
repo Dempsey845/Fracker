@@ -128,6 +128,23 @@ function getDayData(dayOfMonth, incomes, expenses) {
   return result;
 }
 
+function totalsByCategory(data) {
+  const totals = {};
+
+  data.forEach((entry) => {
+    const category = entry.category;
+    const amount = parseFloat(entry.amount);
+
+    if (!totals[category]) {
+      totals[category] = 0;
+    }
+
+    totals[category] += amount;
+  });
+
+  return totals;
+}
+
 export {
   months,
   filterDataByYear,
@@ -137,4 +154,5 @@ export {
   filterDataByMonthRange,
   getMonthRange,
   getDayData,
+  totalsByCategory,
 };

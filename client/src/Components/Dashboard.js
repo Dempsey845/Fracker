@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import BarChart from "./BarChart";
 import PopupForm from "./PopupForm";
 import Transcript from "./Transcript";
+import PieChart from "./PieChart";
 
 function DashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -122,6 +123,7 @@ function DashboardPage() {
 
           <Transcript incomes={incomes} expenses={expenses} />
           <BarChart incomeData={incomes} expenseData={expenses} />
+          <PieChart incomes={incomes} expenses={expenses} />
         </div>
       )}
     </div>
