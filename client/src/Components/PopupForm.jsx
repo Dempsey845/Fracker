@@ -6,10 +6,9 @@ function PopupForm({ show, onClose, onSubmit, categories }) {
     category: "",
     amount: "",
     note: "",
-    date: new Date().toISOString().split("T")[0], // Default to today's date
+    date: new Date().toISOString().split("T")[0],
   });
 
-  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -20,35 +19,37 @@ function PopupForm({ show, onClose, onSubmit, categories }) {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault(); // Prevent the default form submission
-    onSubmit(e, formData, formData.type); // Pass event, form data, and type
+    e.preventDefault();
+    onSubmit(e, formData, formData.type);
   };
 
   useEffect(() => {
-    // Reset category when type changes
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      category: "", // Reset category selection when type changes
+    setFormData((prev) => ({
+      ...prev,
+      category: "",
     }));
   }, [formData.type]);
 
   if (!show) return null;
 
   return (
-    <div style={styles.overlay}>
-      <div style={styles.modal}>
-        <button style={styles.closeBtn} onClick={onClose}>
-          X
-        </button>
-        <form onSubmit={handleSubmit}>
-          <h2>Add Income/Expense</h2>
+    <div className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex justify-content-center align-items-center z-3">
+      <div
+        className="bg-white rounded p-4 shadow-lg"
+        style={{ width: "100%", maxWidth: "500px" }}
+      >
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h4 className="mb-0">Add Income/Expense</h4>
+          <button className="btn-close" onClick={onClose}></button>
+        </div>
 
-          {/* Select Type: Income or Expense */}
-          <div>
-            <label>Income or Expense?</label>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label className="form-label">Income or Expense?</label>
             <select
               name="type"
               required
+              className="form-select"
               value={formData.type}
               onChange={handleInputChange}
             >
@@ -58,14 +59,13 @@ function PopupForm({ show, onClose, onSubmit, categories }) {
             </select>
           </div>
 
-          {console.log(categories)}
-          {/* Categories Dropdown */}
-          {formData.type && categories && categories[formData.type] && (
-            <div>
-              <label>Category</label>
+          {formData.type && categories?.[formData.type] && (
+            <div className="mb-3">
+              <label className="form-label">Category</label>
               <select
                 name="category"
                 required
+                className="form-select"
                 value={formData.category}
                 onChange={handleCategoryChange}
               >
@@ -82,76 +82,51 @@ function PopupForm({ show, onClose, onSubmit, categories }) {
             </div>
           )}
 
-          {/* Amount Input */}
-          <div>
-            <label>Amount:</label>
+          <div className="mb-3">
+            <label className="form-label">Amount</label>
             <input
               type="number"
               name="amount"
               required
+              className="form-control"
               value={formData.amount}
               onChange={handleInputChange}
             />
           </div>
 
-          {/* Description Input */}
-          <div>
-            <label>Note:</label>
+          <div className="mb-3">
+            <label className="form-label">Note</label>
             <input
               type="text"
               name="note"
               required
+              className="form-control"
               value={formData.note}
               onChange={handleInputChange}
             />
           </div>
 
-          {/* Date Input */}
-          <div>
-            <label>Date:</label>
+          <div className="mb-4">
+            <label className="form-label">Date</label>
             <input
               type="date"
               name="date"
               required
+              className="form-control"
               value={formData.date}
               onChange={handleInputChange}
             />
           </div>
 
-          {/* Submit Button */}
-          <button type="submit">Submit</button>
+          <div className="d-grid">
+            <button type="submit" className="btn btn-primary">
+              Submit
+            </button>
+          </div>
         </form>
       </div>
     </div>
   );
 }
-
-const styles = {
-  overlay: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modal: {
-    backgroundColor: "white",
-    padding: "20px",
-    borderRadius: "8px",
-    width: "400px",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  },
-  closeBtn: {
-    background: "none",
-    border: "none",
-    fontSize: "16px",
-    cursor: "pointer",
-    float: "right",
-  },
-};
 
 export default PopupForm;

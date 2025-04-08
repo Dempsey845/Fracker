@@ -104,48 +104,24 @@ function DashboardPage() {
   }
 
   return (
-    <div>
-      <h1>Welcome to the Dashboard</h1>
+    <div className="container text-center my-5">
+      <h1 className="mb-4">Welcome to the Dashboard</h1>
+
       {user && (
         <div>
-          <h3>User Details:</h3>
-          <p>Email: {user.email}</p>
-          <button onClick={openPopup}>Add Income/Expense</button>
+          <button onClick={openPopup} className="btn btn-primary mb-4">
+            Add Income/Expense
+          </button>
+
           <PopupForm
             show={showPopup}
             onClose={closePopup}
             onSubmit={handleFormSubmit}
             categories={categories}
           />
+
           <Transcript incomes={incomes} expenses={expenses} />
           <BarChart incomeData={incomes} expenseData={expenses} />
-
-          {/*
-          <div>
-            <h2>Incomes</h2>
-            <ul>
-              {console.log(incomes)}
-              {incomes.map((income) => (
-                <li key={income.id}>
-                  Amount: {income.amount}, Note: {income.note}, Date:{" "}
-                  {income.date}, Category: {income.category}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h2>Expenses</h2>
-            <ul>
-              {expenses.map((expense) => (
-                <li key={expense.id}>
-                  Amount: {expense.amount}, Note: {expense.note}, Date:{" "}
-                  {expense.date}, Category: {expense.category}
-                </li>
-              ))}
-            </ul>
-          </div>
-        */}
         </div>
       )}
     </div>
