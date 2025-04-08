@@ -1,3 +1,42 @@
 body {
   background-image: url("https://www.transparenttextures.com/patterns/cubes.png");
 }
+
+.income {
+  color: blue;
+}
+
+.expense {
+  color: red;
+}
+
+.financial-summary {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.summary-item {
+  text-align: center;
+  flex-basis: 30%;
+}
+
+h5 {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .financial-summary {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .summary-item {
+    flex-basis: 100%;
+  }
+}
+
+.transcript {
+  background-image: url("https://www.transparenttextures.com/patterns/connected.png");
+}

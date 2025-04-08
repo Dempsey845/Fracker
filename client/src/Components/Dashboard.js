@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import BarChart from "./BarChart";
 import PopupForm from "./PopupForm";
+import Transcript from "./Transcript";
 
 function DashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -116,8 +117,10 @@ function DashboardPage() {
             onSubmit={handleFormSubmit}
             categories={categories}
           />
+          <Transcript incomes={incomes} expenses={expenses} />
           <BarChart incomeData={incomes} expenseData={expenses} />
 
+          {/*
           <div>
             <h2>Incomes</h2>
             <ul>
@@ -142,6 +145,7 @@ function DashboardPage() {
               ))}
             </ul>
           </div>
+        */}
         </div>
       )}
     </div>

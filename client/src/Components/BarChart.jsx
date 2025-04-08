@@ -86,7 +86,17 @@ function BarChart({ incomeData, expenseData }) {
   };
 
   return (
-    <div>
+    <div
+      className="barchart"
+      style={{
+        backgroundColor: "#f9f9f9",
+        padding: "20px",
+        borderRadius: "8px",
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        margin: "20px auto",
+        maxWidth: "1200px",
+      }}
+    >
       <ChartOptions
         onChangeStartMonth={setStartMonth}
         onChangeEndMonth={setEndMonth}
