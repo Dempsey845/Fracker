@@ -1,11 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { getDayData } from "../Handlers/ParseData";
 
+// Helper function to get the day of the week
 function getDayOfWeek(dayOfMonth, month) {
   const date = new Date(new Date().getFullYear(), month, dayOfMonth);
-
   const dayOfWeek = date.getDay();
-
   const daysOfWeek = [
     "Sunday",
     "Monday",
@@ -15,10 +14,10 @@ function getDayOfWeek(dayOfMonth, month) {
     "Friday",
     "Saturday",
   ];
-
   return daysOfWeek[dayOfWeek];
 }
 
+// Helper function to get the index of a month name
 const monthNames = [
   "January",
   "February",
@@ -38,9 +37,8 @@ function getMonthIndex(monthName) {
   return monthNames.indexOf(monthName);
 }
 
-function Day({ day, incomes, expenses }) {
+function Day({ day, incomes, expenses, currency }) {
   const dayData = getDayData(day, incomes, expenses);
-  console.log(dayData);
 
   // Helper function to determine the text color for amount
   const getAmountColor = (type) => {
@@ -55,10 +53,12 @@ function Day({ day, incomes, expenses }) {
       className="d-flex flex-column p-4 py-md-3 bg-light rounded shadow-sm mb-4"
       id={`day-${day}`}
     >
-      <label class="list-group-item rounded-3 py-3">
+      <label className="list-group-item rounded-3 py-3">
         {day} {getDayOfWeek(day, getMonthIndex(dayData.month))}
         <span className="d-block small opacity-50">
-          Income: {dayData.incomeTotal} | Expenses: {dayData.expenseTotal}
+          Income: {currency}
+          {dayData.incomeTotal} | Expenses: {currency}
+          {dayData.expenseTotal}
         </span>
         <span className="d-block small opacity-50">
           {dayData.month} {day} {dayData.year}
@@ -78,6 +78,7 @@ function Day({ day, incomes, expenses }) {
                   <h6 className="mb-0">
                     {entry.type} :{" "}
                     <span className={getAmountColor(entry.type)}>
+                      {currency}
                       {entry.amount}
                     </span>
                   </h6>

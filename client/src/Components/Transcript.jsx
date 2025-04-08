@@ -5,6 +5,7 @@ import {
   getMonthTotal,
   getDayData,
 } from "../Handlers/ParseData";
+import { getCurrencySymbol } from "../Handlers/GetUserCurrency";
 import Day from "./Day";
 
 function Transcript({ incomes, expenses }) {
@@ -21,6 +22,16 @@ function Transcript({ incomes, expenses }) {
   const [incomeTotal, setIncomeTotal] = useState(0);
   const [expenseTotal, setExpenseTotal] = useState(0);
   const [total, setTotal] = useState(0);
+
+  const [currency, setCurrency] = useState();
+
+  useEffect(() => {
+    const fetchCurrency = async () => {
+      const userCurrency = await getCurrencySymbol(); // Get the user's currency symbol
+      setCurrency(userCurrency); // Set currency state
+    };
+    fetchCurrency(); // Fetch currency on component mount
+  }, []); // Empty dependency array ensures this runs only once when the component mounts
 
   // Filter incomes and expenses when month/year changes
   useEffect(() => {
@@ -70,6 +81,7 @@ function Transcript({ incomes, expenses }) {
       }}
     >
       <div
+        className="container py-4" // Container for spacing and alignment
         style={{
           marginBottom: "20px", // Spacing between the header and the rest of the content
           padding: "15px",
@@ -78,27 +90,40 @@ function Transcript({ incomes, expenses }) {
           boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
         }}
       >
-        <label>
-          Month:{" "}
-          <select
-            value={month}
-            onChange={(e) => setMonth(parseInt(e.target.value))}
-          >
-            {Array.from({ length: 12 }, (_, i) => (
-              <option key={i} value={i}>
-                {new Date(0, i).toLocaleString("default", { month: "long" })}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Year:{" "}
-          <input
-            type="number"
-            value={year}
-            onChange={(e) => setYear(parseInt(e.target.value))}
-          />
-        </label>
+        <h3 className="mb-4">Select Month and Year</h3>
+
+        <div className="row g-3">
+          <div className="col-md-6">
+            <label htmlFor="month" className="form-label">
+              Month
+            </label>
+            <select
+              id="month"
+              value={month}
+              onChange={(e) => setMonth(parseInt(e.target.value))}
+              className="form-select"
+            >
+              {Array.from({ length: 12 }, (_, i) => (
+                <option key={i} value={i}>
+                  {new Date(0, i).toLocaleString("default", { month: "long" })}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-md-6">
+            <label htmlFor="year" className="form-label">
+              Year
+            </label>
+            <input
+              id="year"
+              type="number"
+              value={year}
+              onChange={(e) => setYear(parseInt(e.target.value))}
+              className="form-control"
+            />
+          </div>
+        </div>
       </div>
 
       <div
@@ -118,7 +143,8 @@ function Transcript({ incomes, expenses }) {
             Income
           </h5>
           <h5 className="income" style={{ color: "#007bff" }}>
-            £{incomeTotal}
+            {currency}
+            {incomeTotal}
           </h5>
         </div>
         <div className="summary-item">
@@ -126,12 +152,16 @@ function Transcript({ incomes, expenses }) {
             Expenses
           </h5>
           <h5 className="expense" style={{ color: "#dc3545" }}>
-            £{expenseTotal}
+            {currency}
+            {expenseTotal}
           </h5>
         </div>
         <div className="summary-item">
           <h5>Total</h5>
-          <h5>£{total}</h5>
+          <h5>
+            {currency}
+            {total}
+          </h5>
         </div>
       </div>
 
@@ -152,6 +182,7 @@ function Transcript({ incomes, expenses }) {
             day={day}
             incomes={filteredIncomes}
             expenses={filteredExpenses}
+            currency={currency}
           />
         ))}
       </div>

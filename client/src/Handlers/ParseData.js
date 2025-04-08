@@ -19,8 +19,8 @@ const months = [
 ];
 
 function filterDataByYear(data, year) {
-  console.log("Data being passed to filterDataByYear: ", data);
-  console.log("Year being passed to filterDataByYear: ", year, typeof year);
+  //console.log("Data being passed to filterDataByYear: ", data);
+  //console.log("Year being passed to filterDataByYear: ", year, typeof year);
   return data.filter((entry) => {
     const date = new Date(entry.date);
     const y = date.getFullYear();
@@ -38,7 +38,7 @@ function filterDataByMonth(data, month) {
 }
 
 function getMonthTotals(data) {
-  console.log("Data being passed to getMonthTotals: ", data);
+  //console.log("Data being passed to getMonthTotals: ", data);
   const totals = Array(12).fill(0);
   data.forEach((entry) => {
     const date = new Date(entry.date);
@@ -47,7 +47,7 @@ function getMonthTotals(data) {
 
     totals[monthIndex] += amount;
   });
-  console.log("GetMonthsTotals result: ", totals);
+  //console.log("GetMonthsTotals result: ", totals);
   return totals;
 }
 
@@ -79,7 +79,7 @@ function getMonthRange(startMonth, endMonth) {
 }
 
 function getDayData(dayOfMonth, incomes, expenses) {
-  console.log("incomes being passed to getDayData: ", incomes);
+  //console.log("incomes being passed to getDayData: ", incomes);
   const result = {
     day: dayOfMonth,
     month: "",

@@ -70,19 +70,57 @@ function ChartOptions({ onChangeStartMonth, onChangeEndMonth, onYearChange }) {
   }
 
   return (
-    <div id="chartOptions">
-      <label>Select Start Month</label>
-      <select name="startMonth" onChange={handleMonthChange} value={startMonth}>
-        {getStartMonthOptions()}
-      </select>
-      <label>Select End Month</label>
-      <select name="endMonth" onChange={handleMonthChange} value={endMonth}>
-        {getEndMonthOptions()}
-      </select>
-      <label>Select Year</label>
-      <select name="year" onChange={handleYearChange} value={year}>
-        {getYearOptions()}
-      </select>
+    <div
+      id="chartOptions"
+      className="container py-4" // Container with some vertical padding
+    >
+      <h3>Select Chart Options</h3>
+      <div className="row g-3">
+        <div className="col-md-4">
+          <label htmlFor="startMonth" className="form-label">
+            Select Start Month
+          </label>
+          <select
+            id="startMonth"
+            name="startMonth"
+            onChange={handleMonthChange}
+            value={startMonth}
+            className="form-select"
+          >
+            {getStartMonthOptions()}
+          </select>
+        </div>
+
+        <div className="col-md-4">
+          <label htmlFor="endMonth" className="form-label">
+            Select End Month
+          </label>
+          <select
+            id="endMonth"
+            name="endMonth"
+            onChange={handleMonthChange}
+            value={endMonth}
+            className="form-select"
+          >
+            {getEndMonthOptions()}
+          </select>
+        </div>
+
+        <div className="col-md-4">
+          <label htmlFor="year" className="form-label">
+            Select Year
+          </label>
+          <select
+            id="year"
+            name="year"
+            onChange={handleYearChange}
+            value={year}
+            className="form-select"
+          >
+            {getYearOptions()}
+          </select>
+        </div>
+      </div>
     </div>
   );
 }
