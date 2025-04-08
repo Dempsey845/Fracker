@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getDayData } from "../Handlers/ParseData";
+import EditPopupForm from "./EditPopupForm";
 
 function getDaySuffix(day) {
   if (day >= 11 && day <= 13) {
@@ -56,16 +57,67 @@ function getMonthIndex(monthName) {
   return monthNames.indexOf(monthName);
 }
 
-function Day({ day, incomes, expenses, currency }) {
-  const dayData = getDayData(day, incomes, expenses);
+// day 1 - 31
+function formatDay(day) {
+  return day < 10 ? `0${day}` : `${day}`;
+}
 
-  // Helper function to determine the text color for amount
-  const getAmountColor = (type) => {
-    if (type === "income") {
-      return "text-primary"; // Blue for income
-    }
-    return "text-danger"; // Red for expenses
-  };
+function getMonthNumber(monthName) {
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const monthIndex = months.indexOf(monthName);
+
+  // If the month name is found, return the month number (adding a leading zero for single digits)
+  if (monthIndex !== -1) {
+    return (monthIndex + 1).toString().padStart(2, "0");
+  }
+
+  return "";
+}
+
+function Day({ day, incomes, expenses, currency }) {
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [categories, setCategories] = useState({
+    income: [],
+    expenses: [],
+  });
+  const [selectedEntry, setSelectedEntry] = useState(null);
+
+  useEffect(() => {
+    fetch("/default_categories.json")
+      .then((response) => response.json())
+      .then((data) => setCategories(data))
+      .catch((error) => console.error("Error fetching categories:", error));
+  }, []);
+
+  const dayData = getDayData(day, incomes, expenses);
+  const formatedDate = `${dayData.year}-${getMonthNumber(
+    dayData.month
+  )}-${formatDay(day)}`; // pass this to edit popup form as date
+  console.log(formatedDate);
+
+  function handleClose() {
+    setShowEditForm(false);
+    setSelectedEntry(null);
+  }
+
+  function handleEditSubmit() {
+    setShowEditForm(false);
+    setSelectedEntry(null);
+  }
 
   return (
     <div
@@ -90,7 +142,14 @@ function Day({ day, incomes, expenses, currency }) {
         {dayData.entries.map((entry, i) => (
           <div key={i}>
             <a
-              href="#"
+              onClick={() => {
+                const data = {
+                  ...entry,
+                  date: formatedDate,
+                };
+                setSelectedEntry(data);
+                setShowEditForm(true);
+              }}
               className="list-group-item list-group-item-action d-flex gap-3 py-3"
               aria-current="true"
             >
@@ -113,8 +172,25 @@ function Day({ day, incomes, expenses, currency }) {
           </div>
         ))}
       </div>
+      {Object.keys(categories).length > 0 && selectedEntry && (
+        <EditPopupForm
+          show={showEditForm}
+          onClose={handleClose}
+          onSubmit={handleEditSubmit}
+          categories={categories}
+          data={selectedEntry}
+        />
+      )}
     </div>
   );
 }
+
+// Helper function to determine the text color for amount
+const getAmountColor = (type) => {
+  if (type === "income") {
+    return "text-primary"; // Blue for income
+  }
+  return "text-danger"; // Red for expenses
+};
 
 export default Day;
