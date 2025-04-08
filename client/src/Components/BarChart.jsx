@@ -23,10 +23,10 @@ function BarChart({ incomeData, expenseData }) {
     filterDataByYear(expenseData, currentYear)
   );
 
-  const backgroundColor = "rgba(255, 99, 132, 0.2)";
-  const backgroundColor2 = "rgba(99, 255, 132, 0.2)";
-  const borderColor = "rgba(255, 99, 132, 1)";
-  const borderColor2 = "rgba(99, 255, 132, 1)";
+  const backgroundColor2 = "rgba(255, 99, 132, 0.2)";
+  const backgroundColor = "rgba(99, 255, 132, 0.2)";
+  const borderColor2 = "rgba(255, 99, 132, 1)";
+  const borderColor = "rgba(99, 255, 132, 1)";
   const borderWidth = 1;
 
   const [displayData, setDisplayData] = useState({

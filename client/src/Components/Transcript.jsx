@@ -49,7 +49,7 @@ function Transcript({ incomes, expenses }) {
   }, [filteredIncomes, filteredExpenses]);
 
   useEffect(() => {
-    setTotal(incomeTotal - expenseTotal);
+    setTotal((incomeTotal - expenseTotal).toFixed(2));
   }, [incomeTotal, expenseTotal]);
 
   // Days in selected month
