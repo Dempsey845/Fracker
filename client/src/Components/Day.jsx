@@ -4,8 +4,6 @@ import EditPopupForm from "./EditPopupForm";
 import {
   addExpense,
   addIncome,
-  getIncomes,
-  getExpenses,
   updateIncome,
   updateExpense,
   deleteIncome,
@@ -177,6 +175,18 @@ function Day({ day, incomes, expenses, currency, onDataUpdated }) {
     setSelectedEntry(null);
   }
 
+  function onDelete(id, type) {
+    if ((type !== "income") & (type !== "expense")) {
+      console.error("Invalid type passed: ", type);
+      return;
+    }
+
+    type === "income" ? deleteIncome(id) : deleteExpense(id);
+    onDataUpdated();
+    setShowEditForm(false);
+    setSelectedEntry(null);
+  }
+
   return (
     <div
       className="d-flex flex-column p-4 py-md-3 bg-light rounded shadow-sm mb-4"
@@ -237,6 +247,7 @@ function Day({ day, incomes, expenses, currency, onDataUpdated }) {
           onSubmit={handleEditSubmit}
           categories={categories}
           data={selectedEntry}
+          onDelete={onDelete}
         />
       )}
     </div>

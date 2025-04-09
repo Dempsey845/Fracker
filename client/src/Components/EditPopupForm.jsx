@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 
-function EditPopupForm({ show, onClose, onSubmit, categories, data }) {
+function EditPopupForm({
+  show,
+  onClose,
+  onSubmit,
+  categories,
+  data,
+  onDelete,
+}) {
   const [formData, setFormData] = useState({
     id: data?.id || null,
     type: data?.type || "",
@@ -43,6 +50,10 @@ function EditPopupForm({ show, onClose, onSubmit, categories, data }) {
     onSubmit(e, formData, formData.type, prevType);
   };
 
+  const handleOnDelete = () => {
+    onDelete(formData.id, formData.type);
+  };
+
   if (!show) return null;
 
   return (
@@ -52,7 +63,7 @@ function EditPopupForm({ show, onClose, onSubmit, categories, data }) {
         style={{ width: "100%", maxWidth: "500px" }}
       >
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <h4 className="mb-0">Add Income/Expense</h4>
+          <h4 className="mb-0">Update</h4>
           <button className="btn-close" onClick={onClose}></button>
         </div>
 
@@ -129,9 +140,16 @@ function EditPopupForm({ show, onClose, onSubmit, categories, data }) {
             />
           </div>
 
-          <div className="d-grid">
+          <div className="d-grid gap-2">
             <button type="submit" className="btn btn-primary">
               Submit
+            </button>
+            <button
+              onClick={handleOnDelete}
+              type="button"
+              className="btn btn-danger"
+            >
+              Delete
             </button>
           </div>
         </form>
