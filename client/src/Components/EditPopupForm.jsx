@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 
 function EditPopupForm({ show, onClose, onSubmit, categories, data }) {
   const [formData, setFormData] = useState({
+    id: data?.id || null,
     type: data?.type || "",
     category: data?.category || "",
     amount: data?.amount || "",
@@ -9,15 +10,22 @@ function EditPopupForm({ show, onClose, onSubmit, categories, data }) {
     date: data?.date || new Date().toISOString().split("T")[0],
   });
 
+  console.log("Data being passed", data);
+
+  const prevType = data.type;
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
     if (name === "type") {
-      setFormData((prev) => ({
-        ...prev,
-        type: value,
-        category: "", // reset category when type changes
-      }));
+      setFormData((prev) => {
+        console.log("prev type: ", prevType);
+        return {
+          ...prev,
+          type: value,
+          category: "", // reset category when type changes
+        };
+      });
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -32,7 +40,7 @@ function EditPopupForm({ show, onClose, onSubmit, categories, data }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(e, formData, formData.type);
+    onSubmit(e, formData, formData.type, prevType);
   };
 
   if (!show) return null;

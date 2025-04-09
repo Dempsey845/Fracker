@@ -8,7 +8,7 @@ import {
 import { getCurrencySymbol } from "../Handlers/GetUserCurrency";
 import Day from "./Day";
 
-function Transcript({ incomes, expenses }) {
+function Transcript({ incomes, expenses, onDataUpdated }) {
   console.log("Incomes being passed to transcript: ", incomes);
   const date = new Date();
   const currentMonth = date.getMonth();
@@ -183,6 +183,7 @@ function Transcript({ incomes, expenses }) {
             incomes={filteredIncomes}
             expenses={filteredExpenses}
             currency={currency}
+            onDataUpdated={onDataUpdated}
           />
         ))}
       </div>

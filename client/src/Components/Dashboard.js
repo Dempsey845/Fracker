@@ -14,6 +14,7 @@ function DashboardPage() {
   });
   const [incomes, setIncomes] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [updates, setUpdates] = useState([]);
 
   // Fetch categories from default_categories.json
   useEffect(() => {
@@ -42,7 +43,11 @@ function DashboardPage() {
       .catch(() => {
         setIsAuthenticated(false);
       });
-  }, []);
+  }, [updates]);
+
+  const onDataUpdated = () => {
+    setUpdates((prev) => [...prev, "update"]);
+  };
 
   const fetchIncomesAndExpenses = (userId) => {
     // Fetch Incomes
@@ -121,7 +126,11 @@ function DashboardPage() {
             categories={categories}
           />
 
-          <Transcript incomes={incomes} expenses={expenses} />
+          <Transcript
+            incomes={incomes}
+            expenses={expenses}
+            onDataUpdated={onDataUpdated}
+          />
           <BarChart incomeData={incomes} expenseData={expenses} />
           <PieChart incomes={incomes} expenses={expenses} />
         </div>

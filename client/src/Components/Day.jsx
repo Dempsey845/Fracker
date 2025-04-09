@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { getDayData } from "../Handlers/ParseData";
 import EditPopupForm from "./EditPopupForm";
+import {
+  addExpense,
+  addIncome,
+  getIncomes,
+  getExpenses,
+  updateIncome,
+  updateExpense,
+  deleteIncome,
+  deleteExpense,
+} from "../Handlers/APIHandler";
 
 function getDaySuffix(day) {
   if (day >= 11 && day <= 13) {
@@ -88,7 +98,7 @@ function getMonthNumber(monthName) {
   return "";
 }
 
-function Day({ day, incomes, expenses, currency }) {
+function Day({ day, incomes, expenses, currency, onDataUpdated }) {
   const [showEditForm, setShowEditForm] = useState(false);
   const [categories, setCategories] = useState({
     income: [],
@@ -114,7 +124,55 @@ function Day({ day, incomes, expenses, currency }) {
     setSelectedEntry(null);
   }
 
-  function handleEditSubmit() {
+  function handleEditSubmit(e, formData, type, prevType) {
+    console.log("e=", e);
+    console.log("formData: ", formData);
+    console.log("type: ", type);
+    console.log("prevType", prevType);
+
+    if ((type !== "income") & (type !== "expense")) {
+      console.error("Invalid type passed: ", type);
+      return;
+    }
+
+    if (type !== prevType) {
+      // Type has changed
+      // Delete old income/expense
+      // Add new expense/income
+      prevType === "income"
+        ? deleteIncome(formData.id)
+        : deleteExpense(formData.id);
+      type === "expense"
+        ? addExpense(
+            formData.amount,
+            formData.note,
+            formData.date,
+            formData.category
+          )
+        : addIncome(
+            formData.amount,
+            formData.note,
+            formData.date,
+            formData.category
+          );
+    } else {
+      type === "income"
+        ? updateIncome(
+            formData.id,
+            formData.amount,
+            formData.note,
+            formData.date,
+            formData.category
+          )
+        : updateExpense(
+            formData.id,
+            formData.amount,
+            formData.note,
+            formData.date,
+            formData.category
+          );
+    }
+    onDataUpdated();
     setShowEditForm(false);
     setSelectedEntry(null);
   }
