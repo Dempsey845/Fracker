@@ -18,8 +18,15 @@ function DashboardPage() {
   const [expenses, setExpenses] = useState([]);
   const [updates, setUpdates] = useState([]);
 
-  const currency = "TODO";
+  const [currency, setCurrency] = useState();
 
+  useEffect(() => {
+    const fetchCurrency = async () => {
+      const userCurrency = await getCurrencySymbol(); // Get the user's currency symbol
+      setCurrency(userCurrency); // Set currency state
+    };
+    fetchCurrency(); // Fetch currency on component mount
+  }, []); // Empty dependency array ensures this runs only once when the component mounts
   // Fetch categories from default_categories.json
   useEffect(() => {
     fetch("/default_categories.json")
@@ -134,6 +141,7 @@ function DashboardPage() {
             incomes={incomes}
             expenses={expenses}
             onDataUpdated={onDataUpdated}
+            currency={currency}
           />
           <Goals currency={currency} onDataUpdated={onDataUpdated} />
           <BarChart incomeData={incomes} expenseData={expenses} />

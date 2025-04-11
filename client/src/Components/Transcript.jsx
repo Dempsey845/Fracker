@@ -8,7 +8,7 @@ import {
 import { getCurrencySymbol } from "../Handlers/GetUserCurrency";
 import Day from "./Day";
 
-function Transcript({ incomes, expenses, onDataUpdated }) {
+function Transcript({ incomes, expenses, onDataUpdated, currency }) {
   console.log("Incomes being passed to transcript: ", incomes);
   const date = new Date();
   const currentMonth = date.getMonth();
@@ -22,16 +22,6 @@ function Transcript({ incomes, expenses, onDataUpdated }) {
   const [incomeTotal, setIncomeTotal] = useState(0);
   const [expenseTotal, setExpenseTotal] = useState(0);
   const [total, setTotal] = useState(0);
-
-  const [currency, setCurrency] = useState();
-
-  useEffect(() => {
-    const fetchCurrency = async () => {
-      const userCurrency = await getCurrencySymbol(); // Get the user's currency symbol
-      setCurrency(userCurrency); // Set currency state
-    };
-    fetchCurrency(); // Fetch currency on component mount
-  }, []); // Empty dependency array ensures this runs only once when the component mounts
 
   // Filter incomes and expenses when month/year changes
   useEffect(() => {
