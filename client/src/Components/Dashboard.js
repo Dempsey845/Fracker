@@ -3,6 +3,8 @@ import BarChart from "./BarChart";
 import PopupForm from "./PopupForm";
 import Transcript from "./Transcript";
 import PieChart from "./PieChart";
+import Goals from "./Goals";
+import { getCurrencySymbol } from "../Handlers/GetUserCurrency";
 
 function DashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -15,6 +17,8 @@ function DashboardPage() {
   const [incomes, setIncomes] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [updates, setUpdates] = useState([]);
+
+  const currency = "TODO";
 
   // Fetch categories from default_categories.json
   useEffect(() => {
@@ -131,6 +135,7 @@ function DashboardPage() {
             expenses={expenses}
             onDataUpdated={onDataUpdated}
           />
+          <Goals currency={currency} onDataUpdated={onDataUpdated} />
           <BarChart incomeData={incomes} expenseData={expenses} />
           <PieChart incomes={incomes} expenses={expenses} />
         </div>

@@ -531,6 +531,205 @@ app.delete("/api/deleteexpense/:id", async (req, res) => {
   }
 });
 
+app.post("/api/creategoal", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: "User not authenticated" });
+  }
+
+  const userId = req.user.id;
+  const {
+    name = "",
+    startAmount = 0,
+    targetAmount,
+    note = "",
+    targetDate = null,
+  } = req.body;
+
+  console.log("Body in api/creategoal: ", req.body);
+
+  if (!name || !targetAmount) {
+    return res
+      .status(400)
+      .json({ message: "Name and target amount are required" });
+  }
+
+  try {
+    const insertQuery = `
+      INSERT INTO goals (user_id, name, start_amount, target_amount, note, target_date)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *`;
+
+    const insertResult = await db.query(insertQuery, [
+      userId,
+      name,
+      parseFloat(startAmount),
+      parseFloat(targetAmount),
+      note,
+      targetDate,
+    ]);
+
+    res.status(201).json({
+      message: "Goal created successfully",
+      goal: insertResult.rows[0],
+    });
+  } catch (err) {
+    console.error("Error creating goal:", err);
+    res.status(500).json({
+      message: "An error occurred while creating the goal.",
+      error: err.message,
+    });
+  }
+});
+
+/*
+/api/goals?month=4&year=2025
+
+/api/goals?year=2025
+
+/api/goals?name=holiday
+
+/api/goals?name=trip&month=6&year=2025
+*/
+app.get("/api/goals", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: "User not authenticated" });
+  }
+
+  const userId = req.user.id;
+  const { month, year, name } = req.query;
+
+  let baseQuery = `SELECT * FROM goals WHERE user_id = $1`;
+  const values = [userId];
+  let paramIndex = 2;
+
+  // Filter by month and year using target_date
+  if (month && year) {
+    baseQuery += ` AND EXTRACT(MONTH FROM target_date) = $${paramIndex}`;
+    values.push(month);
+    paramIndex++;
+
+    baseQuery += ` AND EXTRACT(YEAR FROM target_date) = $${paramIndex}`;
+    values.push(year);
+    paramIndex++;
+  } else if (year) {
+    baseQuery += ` AND EXTRACT(YEAR FROM target_date) = $${paramIndex}`;
+    values.push(year);
+    paramIndex++;
+  }
+
+  // Filter by name (case-insensitive partial match)
+  if (name) {
+    baseQuery += ` AND LOWER(name) LIKE $${paramIndex}`;
+    values.push(`%${name.toLowerCase()}%`);
+    paramIndex++;
+  }
+
+  baseQuery += ` ORDER BY target_date ASC, created_at DESC`;
+
+  try {
+    const result = await db.query(baseQuery, values);
+    res.status(200).json({
+      message: "Goals retrieved successfully",
+      goals: result.rows,
+    });
+  } catch (err) {
+    console.error("Error fetching filtered goals:", err);
+    res.status(500).json({
+      message: "An error occurred while fetching goals.",
+      error: err.message,
+    });
+  }
+});
+
+app.put("/api/goals/:id", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const goalId = req.params.id;
+    const { name, startAmount, targetAmount, note, targetDate } = req.body;
+
+    if (!name || !targetAmount) {
+      return res.status(400).json({
+        message: "Name and Target Amount are required",
+      });
+    }
+
+    try {
+      const updateQuery = `
+        UPDATE goals
+        SET name = $1, start_amount = $2, target_amount = $3, note = $4, target_date = $5, updated_at = NOW()
+        WHERE id = $6 AND user_id = $7
+        RETURNING *`;
+
+      const result = await db.query(updateQuery, [
+        name,
+        startAmount,
+        targetAmount,
+        note,
+        targetDate,
+        goalId,
+        req.user.id, // Ensure that the user owns the goal
+      ]);
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          message:
+            "Goal not found or you do not have permission to edit this goal.",
+        });
+      }
+
+      return res.status(200).json({
+        message: "Goal updated successfully",
+        goal: result.rows[0],
+      });
+    } catch (err) {
+      console.error("Error updating goal:", err);
+      return res.status(500).json({
+        message: "An error occurred while updating the goal.",
+        error: err.message,
+      });
+    }
+  } else {
+    return res.status(401).json({
+      message: "User not authenticated",
+    });
+  }
+});
+
+app.delete("/api/goals/:id", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const goalId = req.params.id;
+
+    try {
+      const deleteQuery = `
+        DELETE FROM goals
+        WHERE id = $1 AND user_id = $2
+        RETURNING *`;
+
+      const result = await db.query(deleteQuery, [goalId, req.user.id]);
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          message:
+            "Goal not found or you do not have permission to delete this goal.",
+        });
+      }
+
+      return res.status(200).json({
+        message: "Goal deleted successfully",
+      });
+    } catch (err) {
+      console.error("Error deleting goal:", err);
+      return res.status(500).json({
+        message: "An error occurred while deleting the goal.",
+        error: err.message,
+      });
+    }
+  } else {
+    return res.status(401).json({
+      message: "User not authenticated",
+    });
+  }
+});
+
 app.get("/logout", (req, res, next) => {
   if (req.isAuthenticated()) {
     req.logout((err) => {
