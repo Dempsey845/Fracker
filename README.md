@@ -29,7 +29,7 @@ A full-stack finance dashboard that helps users manage and visualise their incom
 | Frontend     | Backend    | Database   | Auth                 | Charts   |
 | ------------ | ---------- | ---------- | -------------------- | -------- |
 | React        | Express.js | PostgreSQL | Passport.js          | Recharts |
-| Tailwind CSS | Node.js    | Prisma/pg  | Google OAuth & Local |          |
+| Bootstrap    | Node.js    |            | Google OAuth & Local |          |
 
 ## 📁 Project Structure
 
